@@ -43,7 +43,7 @@ const Header = ({title, showBack, showSearch, showCart, showMenu, showLogo} : He
             style={{ width: "100%", height: 24 }} resizeMode='contain' />
 
              </View>) : title && ( <Text className='text-xl font-bold 
-             text-primary text-primary text-center flex-1 mr-8'>{title}</Text>)}
+             text-primary  text-center flex-1 mr-8'>{title}</Text>)}
         {(!title && !showSearch) && <View className='flex-1'/>}      
      </View>
 
