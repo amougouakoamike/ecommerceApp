@@ -6,6 +6,42 @@ import { Ionicons } from '@expo/vector-icons'
 import { COLORS } from '@/constants'
 import { useWishlist } from '@/context/WishListContext'
 
+const PRODUCT_IMAGE_POOL = [
+  'https://raw.githubusercontent.com/avinashdm/gs-images/main/forever/p_img2_1.png',
+  'https://raw.githubusercontent.com/avinashdm/gs-images/main/forever/p_img3.png',
+  'https://raw.githubusercontent.com/avinashdm/gs-images/main/forever/p_img5.png',
+  'https://raw.githubusercontent.com/avinashdm/gs-images/main/forever/p_img7.png',
+  'https://raw.githubusercontent.com/avinashdm/gs-images/main/forever/p_img9.png',
+  'https://raw.githubusercontent.com/avinashdm/gs-images/main/forever/p_img10.png',
+  'https://raw.githubusercontent.com/avinashdm/gs-images/main/forever/p_img13.png',
+  'https://raw.githubusercontent.com/avinashdm/gs-images/main/forever/p_img16.png',
+  'https://raw.githubusercontent.com/avinashdm/gs-images/main/forever/p_img18.png',
+  'https://raw.githubusercontent.com/avinashdm/gs-images/main/forever/p_img20.png',
+  'https://raw.githubusercontent.com/avinashdm/gs-images/main/forever/p_img22.png',
+  'https://raw.githubusercontent.com/avinashdm/gs-images/main/forever/p_img23.png',
+  'https://raw.githubusercontent.com/avinashdm/gs-images/main/forever/p_img29.png',
+  'https://raw.githubusercontent.com/avinashdm/gs-images/main/forever/p_img31.png',
+  'https://raw.githubusercontent.com/avinashdm/gs-images/main/forever/p_img40.png',
+  'https://raw.githubusercontent.com/avinashdm/gs-images/main/forever/p_img45.png',
+];
+
+const getProductImage = (product: ProductCardProps['product']) => {
+  const seed = `${product._id}-${product.name}-${product.category}`;
+  let hash = 0;
+
+  for (let i = 0; i < seed.length; i += 1) {
+    hash = seed.charCodeAt(i) + ((hash << 5) - hash);
+  }
+
+  const safeHash = Math.abs(hash);
+
+  if (product.images && product.images.length > 0) {
+    return product.images[safeHash % product.images.length] || product.images[0];
+  }
+
+  return PRODUCT_IMAGE_POOL[safeHash % PRODUCT_IMAGE_POOL.length];
+};
+
 const ProductCard = ({ product }: ProductCardProps) => {
   const router = useRouter();
   const { toggleWishlist, isInWishlist } = useWishlist();
@@ -25,7 +61,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
       activeOpacity={0.9}
     >
       <View className='relative h-56 w-full bg-gray-100'>
-        <Image source={{ uri: product.images?.[0] ?? '' }} className='w-full h-full' resizeMode='cover' />
+        <Image source={{ uri: getProductImage(product) }} className='w-full h-full' resizeMode='cover' />
 
         <TouchableOpacity
           className='absolute top-2 right-2 z-10 p-2 bg-white rounded-full shadow-sm'

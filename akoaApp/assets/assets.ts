@@ -31,6 +31,63 @@ export const T_SHIRT_GALLERY = [
     "https://raw.githubusercontent.com/avinashdm/gs-images/main/forever/p_img2_4.png",
 ];
 
+export const MEN_PRODUCT_IMAGES = [
+    "https://raw.githubusercontent.com/avinashdm/gs-images/main/forever/p_img2_1.png",
+    "https://raw.githubusercontent.com/avinashdm/gs-images/main/forever/p_img7.png",
+    "https://raw.githubusercontent.com/avinashdm/gs-images/main/forever/p_img10.png",
+    "https://raw.githubusercontent.com/avinashdm/gs-images/main/forever/p_img18.png",
+    "https://raw.githubusercontent.com/avinashdm/gs-images/main/forever/p_img23.png",
+    "https://raw.githubusercontent.com/avinashdm/gs-images/main/forever/p_img31.png",
+    "https://raw.githubusercontent.com/avinashdm/gs-images/main/forever/p_img40.png",
+    "https://raw.githubusercontent.com/avinashdm/gs-images/main/forever/p_img45.png",
+    "https://raw.githubusercontent.com/avinashdm/gs-images/main/forever/p_img52.png",
+];
+
+export const WOMEN_PRODUCT_IMAGES = [
+    "https://raw.githubusercontent.com/avinashdm/gs-images/main/forever/p_img3.png",
+    "https://raw.githubusercontent.com/avinashdm/gs-images/main/forever/p_img5.png",
+    "https://raw.githubusercontent.com/avinashdm/gs-images/main/forever/p_img9.png",
+    "https://raw.githubusercontent.com/avinashdm/gs-images/main/forever/p_img13.png",
+    "https://raw.githubusercontent.com/avinashdm/gs-images/main/forever/p_img16.png",
+    "https://raw.githubusercontent.com/avinashdm/gs-images/main/forever/p_img20.png",
+    "https://raw.githubusercontent.com/avinashdm/gs-images/main/forever/p_img29.png",
+    "https://raw.githubusercontent.com/avinashdm/gs-images/main/forever/p_img44.png",
+    "https://raw.githubusercontent.com/avinashdm/gs-images/main/forever/p_img49.png",
+];
+
+export const KIDS_PRODUCT_IMAGES = [
+    "https://raw.githubusercontent.com/avinashdm/gs-images/main/forever/p_img2_2.png",
+    "https://raw.githubusercontent.com/avinashdm/gs-images/main/forever/p_img2_3.png",
+    "https://raw.githubusercontent.com/avinashdm/gs-images/main/forever/p_img2_4.png",
+    "https://raw.githubusercontent.com/avinashdm/gs-images/main/forever/p_img19.png",
+    "https://raw.githubusercontent.com/avinashdm/gs-images/main/forever/p_img22.png",
+    "https://raw.githubusercontent.com/avinashdm/gs-images/main/forever/p_img25.png",
+    "https://raw.githubusercontent.com/avinashdm/gs-images/main/forever/p_img41.png",
+    "https://raw.githubusercontent.com/avinashdm/gs-images/main/forever/p_img43.png",
+    "https://raw.githubusercontent.com/avinashdm/gs-images/main/forever/p_img47.png",
+];
+
+const getProductImage = (product: any, index: number) => {
+    const currentImages = Array.isArray(product.images) ? product.images : [];
+    const firstImage = currentImages[0];
+
+    if (firstImage && !firstImage.includes('raw.githubusercontent.com/avinashdm/gs-images/main/forever/p_img')) {
+        return currentImages;
+    }
+
+    const category = String(product.category || 'Men').toLowerCase();
+    const pools: Record<string, string[]> = {
+        men: MEN_PRODUCT_IMAGES,
+        women: WOMEN_PRODUCT_IMAGES,
+        kids: KIDS_PRODUCT_IMAGES,
+    };
+
+    const pool = pools[category] || MEN_PRODUCT_IMAGES;
+    const hash = [...(product._id || '')].reduce((sum, char) => sum + char.charCodeAt(0), 0) + index;
+
+    return [pool[hash % pool.length]];
+};
+
 export const dummyProducts = [
     {
         ratings: {
@@ -1020,7 +1077,10 @@ export const dummyProducts = [
         isActive: true,
         createdAt: "2026-02-08T04:21:50.830Z",
     },
-];
+].map((product, index) => ({
+    ...product,
+    images: getProductImage(product, index),
+}));
 
 export const dummyAddress = [
     {
