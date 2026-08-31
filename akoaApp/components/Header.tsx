@@ -3,18 +3,16 @@ import React from 'react'
 import { HeaderProps } from '@/constants/types'
 import { COLORS } from '@/constants'
 import { useRouter } from 'expo-router'
-import { useNavigation } from '@react-navigation/native'
 import { Ionicons } from '@expo/vector-icons'
 
 const Header = ({title, showBack, showSearch, showCart, showMenu, showLogo} : HeaderProps) => {
 
 
     const router = useRouter()
-    const navigation = useNavigation()
 
     const handleBack = () => {
-      if (navigation && typeof (navigation as any).canGoBack === 'function' && (navigation as any).canGoBack()) {
-        (navigation as any).goBack()
+      if (router.canGoBack?.()) {
+        router.back()
       } else {
         router.push('/')
       }
