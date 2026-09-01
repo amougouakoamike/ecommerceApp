@@ -55,7 +55,10 @@ export type CartItemProps = {
 };
 
 export type CategoryItemProps = {
-    item: { id: string | number; name: string; icon: string };
+    item: {
+        size: ReactNode;
+        product: any; id: string | number; name: string; icon: string 
+};
     isSelected?: boolean;
     onPress?: () => void;
 };
