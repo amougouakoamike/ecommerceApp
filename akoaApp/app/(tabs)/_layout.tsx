@@ -1,4 +1,4 @@
-import { Text, View } from 'react-native'
+import { View } from 'react-native'
 import React from 'react'
 import { Tabs } from 'expo-router'
 import { Ionicons,Feather } from '@expo/vector-icons'
@@ -34,9 +34,9 @@ const TabLayout = () => {
         <View className='relative'>
 
         <Ionicons name={focused ? 'cart' : 'cart-outline'} size={26} color={color} /> 
-        <View className='absolute -top-2 -right-2 bg-red-500 rounded-full w-5 h-5 items-center justify-center'>
-            <Text className='text-white text-xs font-bold'>{cartItems.length > 0 && cartItems.length}</Text>
-        </View>
+        {cartItems.length > 0 && (
+            <View className='absolute -top-1 -right-1 bg-red-500 rounded-full w-2.5 h-2.5' />
+        )}
         </View>
     ) 
       }}/>

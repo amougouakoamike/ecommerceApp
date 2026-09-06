@@ -19,7 +19,7 @@ const ProductDetails = () => {
     const [ product, setProduct] = useState<Product | null >(null)
     const [loading, setLoading] = useState(true)
 
-    const {addToCart, cartItems, itemCount} = useCart()
+    const {addToCart} = useCart()
     const { toggleWishlist, isInWishlist} = useWishlist()
 
     const [selectedSize, setSelectedSize] = useState<string | null>(null)
@@ -155,9 +155,7 @@ const ProductDetails = () => {
         <TouchableOpacity onPress={()=> router.push("/(tabs)/cart")} 
           className='h-14 w-14 bg-white rounded-full border border-gray-200 shadow-sm items-center justify-center relative'>
           <Ionicons name="cart-outline" size={24} color={COLORS.primary} />
-          <View className='absolute -top-1 -right-1 h-5 w-5 rounded-full bg-black justify-center items-center'>
-            <Text className='text-white text-[9px] font-bold'>{itemCount}</Text>
-          </View>
+          <View className='absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-red-500' />
         </TouchableOpacity>
       </View>
     </View>

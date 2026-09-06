@@ -142,7 +142,7 @@ export default function Addresses() {
                             <Text className="text-primary font-medium mb-2">Label</Text>
                             <View className="flex-row gap-3 mb-4">
                                 {["Home", "Work", "Other"].map((t) => (
-                                    <TouchableOpacity key={t} onPress={() => setType(t)} className={`px-4 py-2 rounded-full border ${type === t ? 'bg-primary border-primary' : 'bg-white border-gray-300'}`}>
+                                    <TouchableOpacity key={t} onPress={() => setType(t)} className={`px-4 py-2 rounded-full border ${type === t ? 'bg-black border-primary' : 'bg-white border-gray-300'}`}>
                                         <Text className={type === t ? 'text-white' : 'text-primary'}>{t}</Text>
                                     </TouchableOpacity>
                                 ))}
@@ -180,7 +180,7 @@ export default function Addresses() {
                                 <Text className="text-primary">Set as default address</Text>
                             </TouchableOpacity>
 
-                            <TouchableOpacity className="w-full bg-primary py-4 rounded-full items-center mb-10" onPress={handleSaveAddress} disabled={submitting} >
+                            <TouchableOpacity className="w-full bg-black py-4 rounded-full items-center mb-10" onPress={handleSaveAddress} disabled={submitting} >
                                 {submitting ? (
                                     <ActivityIndicator color="white" />
                                 ) : (

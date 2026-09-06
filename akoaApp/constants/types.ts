@@ -74,7 +74,7 @@ export type HeaderProps = {
 
 export interface Address {
     _id: string;
-    type: "Home" | "Work" | "Other";
+    type: "Home" | "Work" | "Office" | "Other";
     street: string;
     city: string;
     state: string;
