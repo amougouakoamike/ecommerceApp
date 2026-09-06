@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "akoaApp",
-    "sdkVersion": "54.0.0",
+    "sdkVersion": "57.0.0",
     "slug": "akoaApp",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -23,7 +23,7 @@
     "web": {
       "output": "static",
       "favicon": "./assets/images/favicon.png",
-        "bundler": "metro"
+      "bundler": "metro"
     },
     "plugins": [
       "expo-router",
@@ -34,7 +34,11 @@
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 76
         }
-      ]
+      ],
+      "expo-font",
+      "expo-image",
+      "expo-status-bar",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true,
