@@ -1,6 +1,5 @@
 import { COLORS } from "@/constants";
-import { useSignIn } from "@clerk/clerk-expo";
-import type { EmailCodeFactor } from "@clerk/types";
+import { useSignIn } from "@clerk/expo";
 import { Ionicons } from "@expo/vector-icons";
 import { Link, useRouter } from "expo-router";
 import * as React from "react";
@@ -37,7 +36,9 @@ export default function Page() {
                 });
                 router.replace("/");
             } else if (signInAttempt.status === "needs_second_factor") {
-                const emailCodeFactor = signInAttempt.supportedSecondFactors?.find((factor): factor is EmailCodeFactor => factor.strategy === "email_code");
+                const emailCodeFactor = signInAttempt.supportedSecondFactors?.find(
+                    (factor: any) => factor.strategy === "email_code",
+                );
 
                 if (emailCodeFactor) {
                     await signIn.prepareSecondFactor({

@@ -1,19 +1,34 @@
-import { View, Text, ScrollView, TouchableOpacity, Image, } from 'react-native'
+import { View, Text, ScrollView, TouchableOpacity, Image, ActivityIndicator } from 'react-native'
 import { SafeAreaView } from "react-native-safe-area-context";
 import React from 'react'
-import { dummyUser } from '@/assets/assets'
 import { useRouter } from 'expo-router'
 import Header from '@/components/Header';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, PROFILE_MENU } from '@/constants';
+import { useAuth, useUser } from '@clerk/expo';
 
 const Profile = () => {
-
-  const {user} = {user: dummyUser}
-  const router = useRouter()
+  const { isLoaded: authLoaded, signOut } = useAuth();
+  const { user, isLoaded: userLoaded } = useUser();
+  const router = useRouter();
 
   const handleLogout = async () => {
-     router.replace('/sign-in')
+    try {
+      await signOut();
+    } finally {
+      router.replace('/sign-in');
+    }
+  }
+
+  if (!authLoaded || !userLoaded) {
+    return (
+      <SafeAreaView className='flex-1 bg-surface' edges={['top']}>
+        <Header title='Profile' showBack />
+        <View className='flex-1 items-center justify-center'>
+          <ActivityIndicator size='large' color={COLORS.primary} />
+        </View>
+      </SafeAreaView>
+    );
   }
 
   return (
@@ -44,11 +59,13 @@ const Profile = () => {
         {/* profile info */}
         <View className='items-center mb-8'>
           <View className='mb-3'>
-          <Image source={{uri: user.imageUrl}} 
+          <Image source={{ uri: user.imageUrl || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=240' }} 
           className=' size-20 border-2 border-white shadow-sm rounded-full'/>
           </View>
-          <Text className='text-xl font-bold'>{user.firstName + " " + user.lastName}</Text>
-          <Text className='text-secondary text-sm'>{user.emailAddresses[0].emailAddress}</Text>
+          <Text className='text-xl font-bold'>
+            {`${user.firstName || ''} ${user.lastName || ''}`.trim() || 'Clerk User'}
+          </Text>
+          <Text className='text-secondary text-sm'>{user.emailAddresses?.[0]?.emailAddress || user.primaryEmailAddress?.emailAddress || 'No email available'}</Text>
 
             {/*. Admin panel button if user is admin */}
             {user.publicMetadata?.role === 'admin' && (

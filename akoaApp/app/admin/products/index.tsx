@@ -12,7 +12,8 @@ export default function AdminProducts() {
     const [products, setProducts] = useState([]);
 
     const fetchProducts = async () => {
-        setProducts(dummyProducts as any);
+        const validProducts = Array.isArray(dummyProducts) ? dummyProducts.filter(Boolean) : [];
+        setProducts(validProducts as any);
         setLoading(false);
         setRefreshing(false);
     };
@@ -27,7 +28,7 @@ export default function AdminProducts() {
     };
 
     const performDelete = async (id: string) => {
-        setProducts(products.filter((product: any) => product._id !== id) as any);
+        setProducts((Array.isArray(products) ? products : []).filter((product: any) => product?._id !== id) as any);
     };
 
     const deleteProduct = async (id: string) => {
@@ -53,10 +54,12 @@ export default function AdminProducts() {
         );
     }
 
+    const safeProducts = Array.isArray(products) ? products.filter(Boolean) : [];
+
     return (
         <View className="flex-1 bg-surface">
             <View className="p-4 bg-white border border-gray-100 flex-row justify-between items-center">
-                <Text className="text-lg font-semibold text-primary">Total Products ({products.length})</Text>
+                <Text className="text-lg font-semibold text-primary">Total Products ({safeProducts.length})</Text>
                 <TouchableOpacity
                     onPress={() => router.push("/admin/products/add")}
                     className="bg-gray-800 px-4 py-2 rounded-full flex-row items-center"
@@ -70,43 +73,50 @@ export default function AdminProducts() {
                 className="flex-1 p-2"
                 refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
             >
-                {products.length === 0 ? (
+                {safeProducts.length === 0 ? (
                     <View className="flex-1 justify-center items-center mt-20">
                         <Text className="text-secondary">No products found</Text>
                     </View>
                 ) : (
-                    products.map((product: any) => (
-                        <View key={product._id ?? product.name} className="bg-white p-3 rounded-lg border border-gray-100 mb-3 flex-row items-center">
-                            <Image
-                                source={{ uri: Array.isArray(product.images) && product.images.length > 0 ? product.images[0] : 'https://via.placeholder.com/150' }}
-                                className="w-16 h-16 rounded-lg bg-gray-100 mr-3"
-                                resizeMode="cover"
-                            />
+                    safeProducts.map((product: any, index: number) => {
+                        const productId = product?._id ?? product?.name ?? `product-${index}`;
+                        const productImage = Array.isArray(product?.images) && product.images.length > 0 ? product.images[0] : 'https://via.placeholder.com/150';
+                        const productCategory = product?.category || 'Others';
+                        const productSizes = Array.isArray(product?.sizes) ? product.sizes.join(', ') : 'Not specified';
 
-                            <View className="flex-1">
-                                <Text className="font-bold text-primary text-base" numberOfLines={1}>{product.name}</Text>
-                                <Text className="text-secondary text-xs mb-1" numberOfLines={1}>Category : {product.category || 'Others'}</Text>
-                                <Text className="text-secondary text-xs mb-1" numberOfLines={1}>Stock : {product.stock}</Text>
-                                <Text className="text-secondary text-xs mb-1" numberOfLines={1}>Sizes : {Array.isArray(product.sizes) ? product.sizes.join(", ") : "Not specified"}</Text>
-                                <Text className="text-primary font-bold">${Number(product.price ?? 0).toFixed(2)}</Text>
-                            </View>
+                        return (
+                            <View key={productId} className="bg-white p-3 rounded-lg border border-gray-100 mb-3 flex-row items-center">
+                                <Image
+                                    source={{ uri: productImage }}
+                                    className="w-16 h-16 rounded-lg bg-gray-100 mr-3"
+                                    resizeMode="cover"
+                                />
 
-                            <View className="flex-row items-center">
-                                <TouchableOpacity
-                                    onPress={() => router.push(`/admin/products/edit/${product._id}`)}
-                                    className="p-2 bg-slate-50 rounded-full mr-2"
-                                >
-                                    <Ionicons name="create-outline" size={18} color="#333333" />
-                                </TouchableOpacity>
-                                <TouchableOpacity
-                                    onPress={() => deleteProduct(product._id)}
-                                    className="p-2 bg-gray-50 rounded-full"
-                                >
-                                    <Ionicons name="trash-outline" size={18} color="#333333" />
-                                </TouchableOpacity>
+                                <View className="flex-1">
+                                    <Text className="font-bold text-primary text-base" numberOfLines={1}>{product?.name || 'Unnamed Product'}</Text>
+                                    <Text className="text-secondary text-xs mb-1" numberOfLines={1}>Category : {productCategory}</Text>
+                                    <Text className="text-secondary text-xs mb-1" numberOfLines={1}>Stock : {product?.stock ?? 0}</Text>
+                                    <Text className="text-secondary text-xs mb-1" numberOfLines={1}>Sizes : {productSizes}</Text>
+                                    <Text className="text-primary font-bold">${Number(product?.price ?? 0).toFixed(2)}</Text>
+                                </View>
+
+                                <View className="flex-row items-center">
+                                    <TouchableOpacity
+                                        onPress={() => product?._id && router.push(`/admin/products/edit/${product._id}`)}
+                                        className="p-2 bg-slate-50 rounded-full mr-2"
+                                    >
+                                        <Ionicons name="create-outline" size={18} color="#333333" />
+                                    </TouchableOpacity>
+                                    <TouchableOpacity
+                                        onPress={() => product?._id && deleteProduct(product._id)}
+                                        className="p-2 bg-gray-50 rounded-full"
+                                    >
+                                        <Ionicons name="trash-outline" size={18} color="#333333" />
+                                    </TouchableOpacity>
+                                </View>
                             </View>
-                        </View>
-                    ))
+                        );
+                    })
                 )}
             </ScrollView>
         </View>

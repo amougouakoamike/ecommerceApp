@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { ScrollView, Text, TouchableOpacity, View, ActivityIndicator, RefreshControl, Alert, Modal, TouchableWithoutFeedback, FlatList } from "react-native";
+import { ScrollView, Text, TouchableOpacity, View, ActivityIndicator, RefreshControl, Modal, TouchableWithoutFeedback, FlatList } from "react-native";
 import { COLORS, getStatusColor } from "@/constants";
 import { Ionicons } from "@expo/vector-icons";
-import { dummyOrders, dummyUser } from "@/assets/assets";
+import { useUser } from "@clerk/expo";
+import { dummyOrders } from "@/assets/assets";
 
 export default function AdminOrders() {
+    const { user, isLoaded: userLoaded } = useUser();
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
     const [orders, setOrders] = useState([]);
@@ -17,17 +19,29 @@ export default function AdminOrders() {
     const STATUSES = ["placed", "processing", "shipped", "delivered", "cancelled"];
 
     const fetchOrders = async () => {
+        const liveUser = user ? {
+            _id: user.id,
+            name: `${user.firstName || ""} ${user.lastName || ""}`.trim() || "Clerk User",
+            email: user.emailAddresses?.[0]?.emailAddress || user.primaryEmailAddress?.emailAddress || "No email available",
+        } : {
+            _id: "guest",
+            name: "Guest User",
+            email: "No email available",
+        };
+
         setOrders(dummyOrders.map((order: any) => ({
             ...order,
-            user: dummyUser
+            user: liveUser,
         })) as any);
         setLoading(false);
         setRefreshing(false);
     };
 
     useEffect(() => {
-        fetchOrders();
-    }, []);
+        if (userLoaded) {
+            fetchOrders();
+        }
+    }, [userLoaded, user]);
 
     const onRefresh = () => {
         setRefreshing(true);

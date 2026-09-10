@@ -1,3 +1,5 @@
+import type { ReactNode } from "react";
+
 export interface User {
     _id: string;
     name: string;
