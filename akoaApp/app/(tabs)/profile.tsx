@@ -6,6 +6,7 @@ import Header from '@/components/Header';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, PROFILE_MENU } from '@/constants';
 import { useAuth, useUser } from '@clerk/expo';
+import { isAdminUser } from '@/utils/admin';
 
 const Profile = () => {
   const { isLoaded: authLoaded, signOut } = useAuth();
@@ -67,8 +68,8 @@ const Profile = () => {
           </Text>
           <Text className='text-secondary text-sm'>{user.emailAddresses?.[0]?.emailAddress || user.primaryEmailAddress?.emailAddress || 'No email available'}</Text>
 
-            {/*. Admin panel button if user is admin */}
-            {user.publicMetadata?.role === 'admin' && (
+            {/* Admin panel button if user is admin */}
+            {isAdminUser(user) && (
               <TouchableOpacity onPress={()=> router.push('/admin')}
               className='mt-4 bg-black px-6 py-2 rounded-full'>
                 <Text className='text-white font-bold'>Admin Panel</Text>

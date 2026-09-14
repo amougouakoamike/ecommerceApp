@@ -4,13 +4,14 @@ import { View, ActivityIndicator, TouchableOpacity, Text } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { COLORS } from "@/constants";
 import { useUser } from "@clerk/expo";
+import { isAdminUser } from "@/utils/admin";
 
 export default function AdminLayout() {
     const { user, isLoaded } = useUser();
     const router = useRouter();
 
     useEffect(() => {
-        if (isLoaded && (!user || user.publicMetadata?.role !== "admin")) {
+        if (isLoaded && !isAdminUser(user)) {
             router.replace("/(tabs)");
         }
     }, [isLoaded, user]);
@@ -23,7 +24,7 @@ export default function AdminLayout() {
         );
     }
 
-    if (!user || user.publicMetadata?.role !== "admin") return null;
+    if (!user || !isAdminUser(user)) return null;
 
     return (
         <Tabs
