@@ -12,10 +12,10 @@ const startServer = async () => {
     await connectDB();
     console.log('MongoDB connected successfully.');
   } catch (error) {
-    console.error('MongoDB connection failed. Starting server without database connection:', error);
+    console.error('MongoDB connection failed. Server cannot start without a database connection:', error);
+    process.exit(1);
   }
 
-  // Middleware
   app.use(cors());
   app.use(express.json());
   app.use(clerkMiddleware());
