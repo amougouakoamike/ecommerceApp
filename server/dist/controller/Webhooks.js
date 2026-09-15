@@ -34,10 +34,11 @@ export const clerkWebhook = async (req, res) => {
         return res.json({ success: true, message: 'Webhook received' });
     }
     catch (err) {
-        console.error('Error verifying webhook:', err);
+        const message = err instanceof Error ? err.message : String(err);
+        console.error('Error processing Clerk webhook:', message);
         return res.status(400).json({
             success: false,
-            message: 'Error verifying webhook',
+            message: 'Webhook verification or processing failed',
         });
     }
 };

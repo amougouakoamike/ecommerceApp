@@ -36,7 +36,11 @@ app.get('/', (_req, res) => {
     res.send('Server is Live!');
 });
 app.get('/api/health', (_req, res) => {
-    res.json({ success: true, database: 'connected' });
+    res.json({
+        success: true,
+        database: 'connected',
+        webhookSigningSecretConfigured: Boolean(process.env.CLERK_WEBHOOK_SIGNING_SECRET),
+    });
 });
 const startServer = async () => {
     try {
