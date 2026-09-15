@@ -27,6 +27,10 @@ const startServer = async () => {
     res.send('Server is Live!');
   });
 
+  app.get('/api/health', (req: Request, res: Response) => {
+    res.json({ success: true, database: 'connected' });
+  });
+
   app.listen(port, () => {
     console.log(`Server is running at http://localhost:${port}`);
   });

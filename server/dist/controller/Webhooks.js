@@ -3,6 +3,7 @@ import User from "../models/User.js";
 export const clerkWebhook = async (req, res) => {
     try {
         const evt = await verifyWebhook(req);
+        console.log(`Received Clerk webhook: ${evt.type}`);
         if (evt.type === 'user.created' || evt.type === 'user.updated') {
             const email = evt.data.email_addresses?.[0]?.email_address;
             if (!email) {
