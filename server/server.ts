@@ -3,6 +3,7 @@ import express, { Request, Response } from 'express';
 import cors from "cors";
 import connectDB from "./config/db.js";
 import { clerkMiddleware } from '@clerk/express';
+import { clerkWebhook } from "./controller/Webhooks.js";
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -15,6 +16,8 @@ const startServer = async () => {
     console.error('MongoDB connection failed. Server cannot start without a database connection:', error);
     process.exit(1);
   }
+ 
+  app.post('/api/clerk', express.raw({type: "application/json"}), clerkWebhook)
 
   app.use(cors());
   app.use(express.json());
