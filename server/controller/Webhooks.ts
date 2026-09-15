@@ -7,28 +7,51 @@ import User from "../models/User.js"
 export const clerkWebhook = async (req: Request, res:Response) => {
   try {
     const evt = await verifyWebhook(req)
-  
-  if(evt.type === 'user.created' || evt.type === 'user.updated'){
-    const user = await User.findOne({clerkId: evt.data.id})
 
-  const userData = {
-       clerkId: evt.data.id,
-       email: evt.data?.email_addresses[0]?.email_address,
-       name: evt.data?.first_name + " " + evt.data?.last_name,
-       image: evt.data?.image_url,
-  }
-  if(user){
-    await User.findOneAndUpdate({clerkId: evt.data.id}, userData)
-  }else{
-    await User.create(userData)
-  }
+    if (evt.type === 'user.created' || evt.type === 'user.updated') {
+      const email = evt.data.email_addresses?.[0]?.email_address
 
- }  
- return res.json({success: true, message: "Webhook received"})
+      if (!email) {
+        return res.status(400).json({
+          success: false,
+          message: 'Clerk user has no email address',
+        })
+      }
+
+      const name = [evt.data.first_name, evt.data.last_name]
+        .filter(Boolean)
+        .join(' ')
+
+      const user = await User.findOneAndUpdate(
+        { clerkId: evt.data.id },
+        {
+          $set: {
+            clerkId: evt.data.id,
+            email,
+            name: name || email,
+            image: evt.data.image_url,
+          },
+          $setOnInsert: { role: 'user' },
+        },
+        {
+          new: true,
+          upsert: true,
+          setDefaultsOnInsert: true,
+          runValidators: true,
+        },
+      )
+
+      console.log(`Synced Clerk user ${user.clerkId} to MongoDB as ${user._id}`)
+    }
+
+    return res.json({ success: true, message: 'Webhook received' })
  
 
   } catch (err) {
     console.error('Error verifying webhook:', err)
-    res.status(400).send('Error verifying webhook')
+    return res.status(400).json({
+      success: false,
+      message: 'Error verifying webhook',
+    })
   }
 }
