@@ -9,8 +9,16 @@ export const clerkWebhook = async (req: Request, res:Response) => {
     const evt = await verifyWebhook(req)
     console.log(`Received Clerk webhook: ${evt.type}`)
 
+    if (evt.type === 'user.deleted') {
+      const result = await User.deleteOne({ clerkId: evt.data.id })
+      console.log(`Deleted Clerk user ${evt.data.id} from MongoDB (${result.deletedCount} document)`)
+      return res.json({ success: true, message: 'Webhook received' })
+    }
+
     if (evt.type === 'user.created' || evt.type === 'user.updated') {
-      const email = evt.data.email_addresses?.[0]?.email_address
+      const email = evt.data.email_addresses?.find(
+        ({ id }) => id === evt.data.primary_email_address_id,
+      )?.email_address ?? evt.data.email_addresses?.[0]?.email_address
 
       if (!email) {
         return res.status(400).json({
@@ -50,8 +58,8 @@ export const clerkWebhook = async (req: Request, res:Response) => {
 
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err)
-    console.error('Error processing Clerk webhook:', message)
-    return res.status(400).json({
+    console.error('Error processing Clerk webhook:', err)
+    return res.status(500).json({
       success: false,
       message: 'Webhook verification or processing failed',
     })
