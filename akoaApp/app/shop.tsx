@@ -90,20 +90,18 @@ useEffect(()=>{
 
          onEndReached={loadMore}
          onEndReachedThreshold={0.5}
-         ListFooterComponent={
+         ListFooterComponent={() => (
             loadingMore ? (
                 <View className='py-4'>
                     <ActivityIndicator size="small" color={COLORS.primary}/>
                 </View>
             ) : null
-         }
-         ListEmptyComponent={
-            !loading && (
-                <View className='flex-1 items-center justify-center py-20'>
-                    <Text className='text-secondary'>No products found</Text>
-                </View>
-            )
-         }
+         )}
+         ListEmptyComponent={() => (
+            <View className='flex-1 items-center justify-center py-20'>
+                <Text className='text-secondary'>No products found</Text>
+            </View>
+         )}
          />
          
         

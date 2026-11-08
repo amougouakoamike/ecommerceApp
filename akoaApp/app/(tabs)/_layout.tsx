@@ -27,13 +27,13 @@ const TabLayout = () => {
    }}
    >
     <Tabs.Screen name='index' options={{tabBarIcon: ({color, focused}) => 
-        <Ionicons name={focused ? 'home' : 'home-outline'} size={26} color={color} /> 
+        <Ionicons name={focused ? 'home' : 'home-outline'} size={26} color={typeof color === 'string' ? color : COLORS.primary} />
     }}/>
 
     <Tabs.Screen name='cart' options={{tabBarIcon: ({color, focused}) =>(
         <View className='relative'>
 
-        <Ionicons name={focused ? 'cart' : 'cart-outline'} size={26} color={color} /> 
+        <Ionicons name={focused ? 'cart' : 'cart-outline'} size={26} color={typeof color === 'string' ? color : COLORS.primary} />
         {cartItems.length > 0 && (
             <View className='absolute -top-1 -right-1 bg-red-500 rounded-full w-2.5 h-2.5' />
         )}
@@ -41,10 +41,10 @@ const TabLayout = () => {
     ) 
       }}/>
         <Tabs.Screen name='favorites' options={{tabBarIcon: ({color, focused}) => 
-        <Ionicons name={focused ? 'heart' : 'heart-outline'} size={26} color={color} /> 
+        <Ionicons name={focused ? 'heart' : 'heart-outline'} size={26} color={typeof color === 'string' ? color : COLORS.primary} />
         }}/>
          <Tabs.Screen name='profile' options={{tabBarIcon: ({color, focused}) => 
-        <Ionicons name={focused ? 'person' : 'person-outline'} size={26} color={color} /> 
+        <Ionicons name={focused ? 'person' : 'person-outline'} size={26} color={typeof color === 'string' ? color : COLORS.primary} />
         }}/>
    </Tabs>
   )

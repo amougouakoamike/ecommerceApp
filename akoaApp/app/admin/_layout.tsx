@@ -55,7 +55,7 @@ export default function AdminLayout() {
                 options={{
                     title: "Dashboard",
                     tabBarIcon: ({ color, size }) => (
-                        <Ionicons name="grid-outline" size={size} color={color} />
+                        <Ionicons name="grid-outline" size={size} color={typeof color === "string" ? color : COLORS.primary} />
                     )
                 }}
             />
@@ -64,7 +64,7 @@ export default function AdminLayout() {
                 options={{
                     title: "Products",
                     tabBarIcon: ({ color, size }) => (
-                        <Ionicons name="cube-outline" size={size} color={color} />
+                        <Ionicons name="cube-outline" size={size} color={typeof color === "string" ? color : COLORS.primary} />
                     )
                 }}
             />
@@ -73,7 +73,7 @@ export default function AdminLayout() {
                 options={{
                     title: "Orders",
                     tabBarIcon: ({ color, size }) => (
-                        <Ionicons name="receipt-outline" size={size} color={color} />
+                        <Ionicons name="receipt-outline" size={size} color={typeof color === "string" ? color : COLORS.primary} />
                     )
                 }}
             />
