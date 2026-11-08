@@ -1,9 +1,19 @@
 import { verifyWebhook } from "@clerk/express/webhooks";
 import User from "../models/User.js";
 export const clerkWebhook = async (req, res) => {
+    let evt;
     try {
-        const evt = await verifyWebhook(req);
-        console.log(`Received Clerk webhook: ${evt.type}`);
+        evt = await verifyWebhook(req);
+    }
+    catch (err) {
+        console.error('Clerk webhook signature verification failed:', err);
+        return res.status(400).json({
+            success: false,
+            message: 'Webhook signature verification failed',
+        });
+    }
+    console.log(`Received Clerk webhook: ${evt.type}`);
+    try {
         if (evt.type === 'user.deleted') {
             const result = await User.deleteOne({ clerkId: evt.data.id });
             console.log(`Deleted Clerk user ${evt.data.id} from MongoDB (${result.deletedCount} document)`);
@@ -12,6 +22,7 @@ export const clerkWebhook = async (req, res) => {
         if (evt.type === 'user.created' || evt.type === 'user.updated') {
             const email = evt.data.email_addresses?.find(({ id }) => id === evt.data.primary_email_address_id)?.email_address ?? evt.data.email_addresses?.[0]?.email_address;
             if (!email) {
+                console.error(`Clerk user ${evt.data.id} has no email address in the webhook payload`);
                 return res.status(400).json({
                     success: false,
                     message: 'Clerk user has no email address',
@@ -39,11 +50,10 @@ export const clerkWebhook = async (req, res) => {
         return res.json({ success: true, message: 'Webhook received' });
     }
     catch (err) {
-        const message = err instanceof Error ? err.message : String(err);
-        console.error('Error processing Clerk webhook:', err);
+        console.error(`Error syncing Clerk ${evt.type} event to MongoDB:`, err);
         return res.status(500).json({
             success: false,
-            message: 'Webhook verification or processing failed',
+            message: 'Webhook processing failed',
         });
     }
 };

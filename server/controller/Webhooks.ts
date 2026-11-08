@@ -5,10 +5,21 @@ import User from "../models/User.js"
 
 
 export const clerkWebhook = async (req: Request, res:Response) => {
-  try {
-    const evt = await verifyWebhook(req)
-    console.log(`Received Clerk webhook: ${evt.type}`)
+  let evt
 
+  try {
+    evt = await verifyWebhook(req)
+  } catch (err) {
+    console.error('Clerk webhook signature verification failed:', err)
+    return res.status(400).json({
+      success: false,
+      message: 'Webhook signature verification failed',
+    })
+  }
+
+  console.log(`Received Clerk webhook: ${evt.type}`)
+
+  try {
     if (evt.type === 'user.deleted') {
       const result = await User.deleteOne({ clerkId: evt.data.id })
       console.log(`Deleted Clerk user ${evt.data.id} from MongoDB (${result.deletedCount} document)`)
@@ -21,6 +32,7 @@ export const clerkWebhook = async (req: Request, res:Response) => {
       )?.email_address ?? evt.data.email_addresses?.[0]?.email_address
 
       if (!email) {
+        console.error(`Clerk user ${evt.data.id} has no email address in the webhook payload`)
         return res.status(400).json({
           success: false,
           message: 'Clerk user has no email address',
@@ -55,13 +67,11 @@ export const clerkWebhook = async (req: Request, res:Response) => {
 
     return res.json({ success: true, message: 'Webhook received' })
  
-
   } catch (err) {
-    const message = err instanceof Error ? err.message : String(err)
-    console.error('Error processing Clerk webhook:', err)
+    console.error(`Error syncing Clerk ${evt.type} event to MongoDB:`, err)
     return res.status(500).json({
       success: false,
-      message: 'Webhook verification or processing failed',
+      message: 'Webhook processing failed',
     })
   }
 }

@@ -4,9 +4,6 @@ import cors from "cors";
 import connectDB from "./config/db.js";
 import { clerkMiddleware } from '@clerk/express';
 import { clerkWebhook } from "./controller/Webhooks.js";
-import makeAdmin from "./scripts/makeAdmin.js";
-
-
 const app = express();
 const port = process.env.PORT || 3000;
 let databaseConnection;
@@ -31,9 +28,6 @@ app.use(async (_req, _res, next) => {
         next(error);
     }
 });
- 
-await makeAdmin();
-
 app.post('/api/clerk', express.raw({ type: 'application/json' }), clerkWebhook);
 app.use(cors());
 app.use(express.json());
