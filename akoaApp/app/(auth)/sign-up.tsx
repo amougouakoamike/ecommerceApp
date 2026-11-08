@@ -15,11 +15,13 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { useSignUp, useSSO } from '@clerk/expo';
+import { useAuth, useSignUp, useSSO } from '@clerk/expo';
 import { Ionicons } from '@expo/vector-icons';
+import { syncCurrentUser } from '@/utils/syncCurrentUser';
 
 export default function SignUpScreen() {
   const router = useRouter();
+  const { getToken } = useAuth();
   const { signUp, errors, fetchStatus } = useSignUp();
   const { startSSOFlow } = useSSO();
 
@@ -29,8 +31,24 @@ export default function SignUpScreen() {
   const [pendingVerification, setPendingVerification] = useState(false);
   const [code, setCode] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [sessionReady, setSessionReady] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [syncError, setSyncError] = useState<string | null>(null);
 
   const isLoading = fetchStatus === 'fetching';
+
+  const syncAccount = async () => {
+    setIsSyncing(true);
+    setSyncError(null);
+    try {
+      await syncCurrentUser(getToken);
+      router.replace('/');
+    } catch (err) {
+      setSyncError(err instanceof Error ? err.message : 'Account sync failed.');
+    } finally {
+      setIsSyncing(false);
+    }
+  };
 
   // Step 1: Create the sign-up attempt
   const handleSignUp = async () => {
@@ -64,6 +82,11 @@ export default function SignUpScreen() {
 
   // Step 2: Verify the email code
   const handleVerify = async () => {
+    if (sessionReady) {
+      await syncAccount();
+      return;
+    }
+
     try {
       // Verify the one-time code [citation:4]
       await signUp.verifications.verifyEmailCode({ code });
@@ -71,7 +94,8 @@ export default function SignUpScreen() {
       // Finalize the sign-up and set the active session [citation:4]
       if (signUp.status === 'complete') {
         await signUp.finalize();
-        router.replace('/');
+        setSessionReady(true);
+        await syncAccount();
       } else {
         Alert.alert('Error', 'Verification failed. Please try again.');
       }
@@ -89,12 +113,37 @@ export default function SignUpScreen() {
 
       if (createdSessionId && setActive) {
         await setActive({ session: createdSessionId });
-        router.replace('/');
+        setSessionReady(true);
+        await syncAccount();
       }
     } catch (err: any) {
       Alert.alert('Error', err.errors?.[0]?.message || 'Social sign-up failed');
     }
   };
+
+  if (sessionReady) {
+    return (
+      <SafeAreaView style={styles.safeArea}>
+        <View style={[styles.scrollContent, styles.syncStatus]}>
+          <Text style={styles.title}>Saving your account</Text>
+          <Text style={styles.subtitle}>
+            {syncError ?? 'Your account is signed in. We are saving it to the database before continuing.'}
+          </Text>
+          {isSyncing ? (
+            <ActivityIndicator style={styles.syncIndicator} size="large" color="#4F46E5" />
+          ) : (
+            <TouchableOpacity
+              style={styles.signUpButton}
+              onPress={syncAccount}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.signUpButtonText}>Retry account sync</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   // Verification UI
   if (pendingVerification) {
@@ -123,6 +172,7 @@ export default function SignUpScreen() {
             </View>
 
             <View style={styles.form}>
+              <View nativeID="clerk-captcha" />
               <View style={styles.inputContainer}>
                 <Ionicons
                   name="key-outline"
@@ -194,6 +244,7 @@ export default function SignUpScreen() {
           </View>
 
           <View style={styles.form}>
+            <View nativeID="clerk-captcha" />
             {/* Email */}
             <View style={styles.inputContainer}>
               <Ionicons
@@ -356,6 +407,12 @@ const styles = StyleSheet.create({
   },
   form: {
     flex: 1,
+  },
+  syncStatus: {
+    justifyContent: 'center',
+  },
+  syncIndicator: {
+    marginTop: 24,
   },
   inputContainer: {
     flexDirection: 'row',

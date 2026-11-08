@@ -16,6 +16,12 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
    npx expo start
    ```
 
+## Backend account sync
+
+Add `EXPO_PUBLIC_API_URL` to `.env` and set it to the server's base URL. For a physical device, use a backend URL reachable from that device; `localhost` refers to the device itself. After changing Expo environment variables, restart Expo with `npx expo start -c`.
+
+Signup waits for the authenticated `/api/users/sync` request to save the Clerk user in MongoDB before navigating to the app. Keep `CLERK_SECRET_KEY` and `MONGODB_URI` configured only on the server. Clerk webhooks remain enabled as the asynchronous backup for later profile updates and deletions.
+
 In the output, you'll find options to open the app in a
 
 - [development build](https://docs.expo.dev/develop/development-builds/introduction/)

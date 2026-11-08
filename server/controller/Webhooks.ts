@@ -1,7 +1,7 @@
 import { verifyWebhook } from "@clerk/express/webhooks"
 import { Request, Response } from "express"
 import User from "../models/User.js"
-
+import { syncUserProfile } from "../services/userSync.js"
 
 
 export const clerkWebhook = async (req: Request, res:Response) => {
@@ -39,28 +39,13 @@ export const clerkWebhook = async (req: Request, res:Response) => {
         })
       }
 
-      const name = [evt.data.first_name, evt.data.last_name]
-        .filter(Boolean)
-        .join(' ')
-
-      const user = await User.findOneAndUpdate(
-        { clerkId: evt.data.id },
-        {
-          $set: {
-            clerkId: evt.data.id,
-            email,
-            name: name || email,
-            image: evt.data.image_url,
-          },
-          $setOnInsert: { role: 'user' },
-        },
-        {
-          new: true,
-          upsert: true,
-          setDefaultsOnInsert: true,
-          runValidators: true,
-        },
-      )
+      const user = await syncUserProfile({
+        clerkId: evt.data.id,
+        email,
+        firstName: evt.data.first_name,
+        lastName: evt.data.last_name,
+        imageUrl: evt.data.image_url,
+      })
 
       console.log(`Synced Clerk user ${user.clerkId} to MongoDB as ${user._id}`)
     }
